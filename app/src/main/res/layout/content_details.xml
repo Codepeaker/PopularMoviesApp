@@ -26,7 +26,8 @@
 
                 android:layout_width="@dimen/size_150"
                 android:layout_height="@dimen/size_200"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@mipmap/ic_launcher"
+                android:contentDescription="@string/movie_image" />
 
             <TextView
                 android:id="@+id/movie_name"

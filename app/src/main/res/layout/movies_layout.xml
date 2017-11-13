@@ -17,7 +17,8 @@
             android:id="@+id/movie_thumbnail_id"
             android:layout_width="match_parent"
             android:layout_height="@dimen/size_230"
-            android:src="@mipmap/ic_launcher" />
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="@string/movie_image" />
 
         <TextView
             android:id="@+id/movie_title_id"
