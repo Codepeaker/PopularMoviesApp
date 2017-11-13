@@ -18,7 +18,7 @@ import in.codepeaker.popularmoviesapp.info.MovieInfo;
 
 public class DetailsActivity extends AppCompatActivity {
 
-    DecimalFormat decimalFormat = new DecimalFormat("#.#");
+    private DecimalFormat decimalFormat = new DecimalFormat("#.#");
     private ImageView coverPicture;
     private TextView movieName;
     private ImageView moviePic;
@@ -38,7 +38,7 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar =findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null) {
@@ -86,12 +86,12 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void initScreen() {
-        coverPicture = (ImageView) findViewById(R.id.cover_picture);
-        moviePic = (ImageView) findViewById(R.id.movie_image);
-        movieName = (TextView) findViewById(R.id.movie_name);
-        movieOverview = (TextView) findViewById(R.id.movie_overview);
-        movieRatings = (TextView) findViewById(R.id.movie_ratings);
-        movieReleaseDate = (TextView) findViewById(R.id.movie_release_date);
+        coverPicture = findViewById(R.id.cover_picture);
+        moviePic = findViewById(R.id.movie_image);
+        movieName = findViewById(R.id.movie_name);
+        movieOverview = findViewById(R.id.movie_overview);
+        movieRatings = findViewById(R.id.movie_ratings);
+        movieReleaseDate = findViewById(R.id.movie_release_date);
     }
 
 }

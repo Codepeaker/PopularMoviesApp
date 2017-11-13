@@ -1,5 +1,6 @@
 package in.codepeaker.popularmoviesapp.rest;
 
+import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -28,11 +29,11 @@ import in.codepeaker.popularmoviesapp.model.MovieModel;
 
 public class GetMovies extends AsyncTask<String, Void, MovieModel> {
     private final String sortType;
-    ProgressDialog progressDialog;
+    private ProgressDialog progressDialog;
     private BufferedReader bufferedReader;
     private HttpURLConnection httpURLConnection;
+    @SuppressLint("StaticFieldLeak")
     private Context context;
-    private String responseString;
 
     public GetMovies(Context context, String sortType) {
         this.sortType = sortType;
@@ -62,6 +63,7 @@ public class GetMovies extends AsyncTask<String, Void, MovieModel> {
     @Override
     protected MovieModel doInBackground(String... params) {
         URL url;
+        String responseString;
         try {
             if (sortType.equals(Constants.SORT_BY_POPULARITY)) {
 

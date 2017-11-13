@@ -29,7 +29,6 @@ import in.codepeaker.popularmoviesapp.rest.GetMovies;
 
 public class MovieFragment extends Fragment implements Controller {
 
-    private View view;
     private RecyclerView movieRecyclerView;
 
 
@@ -37,14 +36,14 @@ public class MovieFragment extends Fragment implements Controller {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
 
-        view = inflater.inflate(R.layout.movie_fragment, container, false);
+        View view = inflater.inflate(R.layout.movie_fragment, container, false);
         init(view);
         initAction();
         return view;
     }
 
     private void init(View view) {
-        movieRecyclerView = (RecyclerView) view.findViewById(R.id.movie_recyclerview);
+        movieRecyclerView = view.findViewById(R.id.movie_recyclerview);
 
     }
 
