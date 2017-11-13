@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">PopularMoviesApp</string>
+    <string name="sort_by_popular">Sort By Popularity</string>
+    <string name="sort_by_ratings">Sort by Ratings</string>
+    <string name="title_activity_details">DetailsActivity</string>
+    <string name="cover_picture">Cover Picture</string>
+</resources>
