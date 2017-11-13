@@ -1,6 +1,7 @@
 package in.codepeaker.popularmoviesapp.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,13 +9,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 import in.codepeaker.popularmoviesapp.R;
+import in.codepeaker.popularmoviesapp.activities.DetailsActivity;
+import in.codepeaker.popularmoviesapp.constants.Constants;
 import in.codepeaker.popularmoviesapp.info.MovieInfo;
 
 /**
@@ -26,7 +29,6 @@ public class MovieListRecyclerViewAdapter extends RecyclerView.Adapter<MovieList
     private List<MovieInfo> movieInfoList;
     private Context context;
 
-    private String imageUrl = "http://image.tmdb.org/t/p/w500/";
 
     public MovieListRecyclerViewAdapter(Context context, List<MovieInfo> movieInfoList) {
         this.movieInfoList = movieInfoList;
@@ -42,14 +44,14 @@ public class MovieListRecyclerViewAdapter extends RecyclerView.Adapter<MovieList
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
         holder.movieTitle.setText(movieInfoList.get(position).title);
-        Picasso.with(context).load(imageUrl + movieInfoList.get(position).poster_path).into(holder.imageView);
+        Picasso.with(context).load(Constants.imageUrl + movieInfoList.get(position).poster_path).into(holder.imageView);
         holder.ratingBar.setRating((float) movieInfoList.get(position).vote_average);
 
     }
 
     @Override
     public int getItemCount() {
-         return movieInfoList.size();
+        return movieInfoList.size();
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -59,16 +61,22 @@ public class MovieListRecyclerViewAdapter extends RecyclerView.Adapter<MovieList
 
         public MovieViewHolder(View itemView) {
             super(itemView);
-            imageView = (ImageView) itemView.findViewById(R.id.movie_thumbnail_id);
+            imageView = itemView.findViewById(R.id.movie_thumbnail_id);
             imageView.setOnClickListener(this);
 
-            movieTitle = (TextView) itemView.findViewById(R.id.movie_title_id);
-            ratingBar = (RatingBar) itemView.findViewById(R.id.ratingBar);
+            movieTitle = itemView.findViewById(R.id.movie_title_id);
+            ratingBar = itemView.findViewById(R.id.ratingBar);
         }
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show();
+            if (v.getId() == R.id.movie_thumbnail_id) {
+                Intent todetailIntent = new Intent(context, DetailsActivity.class);
+                MovieInfo movieInfo = (movieInfoList.get(getAdapterPosition()));
+                String selectedMovieString = new Gson().toJson(movieInfo);
+                todetailIntent.putExtra(Constants.selectedMovie, selectedMovieString);
+                context.startActivity(todetailIntent);
+            }
 
         }
     }

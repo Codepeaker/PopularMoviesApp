@@ -4,14 +4,12 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 
 import in.codepeaker.popularmoviesapp.R;
+import in.codepeaker.popularmoviesapp.constants.Constants;
 import in.codepeaker.popularmoviesapp.fragments.MovieFragment;
 
 public class HomeActivity extends AppCompatActivity {
-
-    private RecyclerView movieRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +22,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void init() {
-        movieRecyclerView = (RecyclerView) findViewById(R.id.movie_recyclerview);
 
     }
 
@@ -35,7 +32,7 @@ public class HomeActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         MovieFragment movieFragment = new MovieFragment();
-        fragmentTransaction.replace(android.R.id.content, movieFragment);
+        fragmentTransaction.add(android.R.id.content, movieFragment, Constants.MovieFragment);
 
         fragmentTransaction.commit();
 

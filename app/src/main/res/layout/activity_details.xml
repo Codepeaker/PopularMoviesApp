@@ -27,7 +27,7 @@
             <ImageView
                 android:id="@+id/cover_picture"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="@dimen/size_360"
                 android:contentDescription="@string/cover_picture"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
@@ -50,17 +50,18 @@
         android:layout_height="match_parent"
         app:behavior_overlapTop="@dimen/movie_detail_content_overlay"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-    <include layout="@layout/content_details" />
+
+        <include layout="@layout/content_details" />
     </android.support.v4.widget.NestedScrollView>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:layout_anchor="@id/collapsing_toolbar_layout"
-        app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+    <!--<android.support.design.widget.FloatingActionButton-->
+    <!--android:id="@+id/fab"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom|end"-->
+    <!--android:layout_margin="@dimen/fab_margin"-->
+    <!--app:layout_anchor="@id/collapsing_toolbar_layout"-->
+    <!--app:layout_anchorGravity="bottom|end"-->
+    <!--app:srcCompat="@android:drawable/ic_dialog_email" />-->
 
 </android.support.design.widget.CoordinatorLayout>
