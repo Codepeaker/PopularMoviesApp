@@ -1,5 +1,6 @@
 package in.codepeaker.popularmoviesapp.rest;
 
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -16,7 +17,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import in.codepeaker.popularmoviesapp.BuildConfig;
+import in.codepeaker.popularmoviesapp.activities.HomeActivity;
 import in.codepeaker.popularmoviesapp.constants.Constants;
+import in.codepeaker.popularmoviesapp.fragments.MovieFragment;
 import in.codepeaker.popularmoviesapp.model.MovieModel;
 
 /**
@@ -26,8 +29,8 @@ import in.codepeaker.popularmoviesapp.model.MovieModel;
 public class GetMovies extends AsyncTask<String, Void, MovieModel> {
     private final String sortType;
     ProgressDialog progressDialog;
-    BufferedReader bufferedReader;
-    HttpURLConnection httpURLConnection;
+    private BufferedReader bufferedReader;
+    private HttpURLConnection httpURLConnection;
     private Context context;
     private String responseString;
 
@@ -46,9 +49,9 @@ public class GetMovies extends AsyncTask<String, Void, MovieModel> {
 
     @Override
     protected void onPostExecute(MovieModel movieModel) {
-
-
-
+        FragmentManager fr = ((HomeActivity) context).getFragmentManager();
+        MovieFragment movieFragment = (MovieFragment) fr.findFragmentByTag(Constants.MovieFragment);
+        movieFragment.setMovieList(movieModel);
     }
 
     @Override

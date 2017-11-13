@@ -53,6 +53,26 @@ public class MovieModel {
     }
 
     public static class ResultsBean {
+        @Override
+        public String toString() {
+            return "ResultsBean{" +
+                    "vote_count=" + vote_count +
+                    ", id=" + id +
+                    ", video=" + video +
+                    ", vote_average=" + vote_average +
+                    ", title='" + title + '\'' +
+                    ", popularity=" + popularity +
+                    ", poster_path='" + poster_path + '\'' +
+                    ", original_language='" + original_language + '\'' +
+                    ", original_title='" + original_title + '\'' +
+                    ", backdrop_path='" + backdrop_path + '\'' +
+                    ", adult=" + adult +
+                    ", overview='" + overview + '\'' +
+                    ", release_date='" + release_date + '\'' +
+                    ", genre_ids=" + genre_ids +
+                    '}';
+        }
+
         /**
          * vote_count : 3452
          * id : 346364
