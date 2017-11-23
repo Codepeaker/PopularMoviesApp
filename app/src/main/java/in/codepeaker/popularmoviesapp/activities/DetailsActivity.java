@@ -1,23 +1,40 @@
 package in.codepeaker.popularmoviesapp.activities;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
 
+import in.codepeaker.popularmoviesapp.BuildConfig;
 import in.codepeaker.popularmoviesapp.R;
 import in.codepeaker.popularmoviesapp.constants.Constants;
 import in.codepeaker.popularmoviesapp.info.MovieInfo;
+import in.codepeaker.popularmoviesapp.model.MovieModel;
+import in.codepeaker.popularmoviesapp.model.ReviewModel;
+import in.codepeaker.popularmoviesapp.model.VideosModel;
+import in.codepeaker.popularmoviesapp.rest.ApiService;
+import in.codepeaker.popularmoviesapp.rest.RestClient;
+import in.codepeaker.popularmoviesapp.sqlhelper.SQLitehelper;
+import retrofit2.Call;
+import retrofit2.Response;
 
-public class DetailsActivity extends AppCompatActivity {
+public class DetailsActivity extends AppCompatActivity implements View.OnClickListener {
 
+    FloatingActionButton fab;
+    SQLitehelper sqLitehelper;
+    MovieInfo movieInfo = null;
     private DecimalFormat decimalFormat = new DecimalFormat("#.#");
     private ImageView coverPicture;
     private TextView movieName;
@@ -25,6 +42,10 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView movieRatings;
     private TextView movieReleaseDate;
     private TextView movieOverview;
+    private ImageView movieTrailerImageView;
+    private String videourl;
+    private TextView movieReviewsTextView;
+    private boolean isfav = false;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -38,7 +59,7 @@ public class DetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
-        Toolbar toolbar =findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null) {
@@ -47,14 +68,8 @@ public class DetailsActivity extends AppCompatActivity {
         initScreen();
 
         initAction();
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+
+
     }
 
     @Override
@@ -64,16 +79,37 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void initAction() {
-        String selectedMovie = getIntent().getStringExtra(Constants.selectedMovie);
-        Gson gson = new Gson();
-        MovieInfo movieInfo = gson.fromJson(selectedMovie, MovieInfo.class);
+
+        Bundle data = getIntent().getExtras();
+
+        if (data != null) {
+            movieInfo = (MovieInfo)
+                    data.getParcelable(Constants.selectedMovie);
+        }
+//        String selectedMovie = getIntent().getStringExtra(Constants.selectedMovie);
+//        Gson gson = new Gson();
+//        MovieInfo movieInfo = gson.fromJson(selectedMovie, MovieInfo.class);
+
+        sqLitehelper = new SQLitehelper(DetailsActivity.this);
+        if (movieInfo == null) {
+            return;
+        }
+
 
         setTitle(movieInfo.getTitle());
         movieName.setText(movieInfo.getTitle());
         movieOverview.setText(movieInfo.getOverview());
-        movieRatings.setText(decimalFormat.format(movieInfo.getVote_average()));
-        movieReleaseDate.setText(movieInfo.getRelease_date());
-
+        movieRatings.setText(String.format("%s / 10", decimalFormat.format(movieInfo.getVote_average())));
+        movieReleaseDate.setText(String.format("Release Date - %s", movieInfo.getRelease_date()));
+        movieReviewsTextView.setOnClickListener(this);
+        movieReviewsTextView.setMaxLines(5);
+        if (movieInfo.isFav() || sqLitehelper.checkIfFav(movieInfo.id)) {
+            fab.setImageDrawable(ContextCompat.getDrawable(DetailsActivity.this
+                    , R.drawable.ic_favorite_white_24dp));
+        } else {
+            fab.setImageDrawable(ContextCompat.getDrawable(DetailsActivity.this
+                    , R.drawable.ic_favorite_border_white_24dp));
+        }
 
         Picasso.with(DetailsActivity.this)
                 .load(Constants.imageUrl + movieInfo.getPoster_path())
@@ -83,15 +119,144 @@ public class DetailsActivity extends AppCompatActivity {
                 .load(Constants.imageUrl + movieInfo.getBackdrop_path())
                 .into(coverPicture);
 
+        callVideosApi(movieInfo.id);
+
+        callReviewsApi(movieInfo.id);
+
+        movieTrailerImageView.setOnClickListener(this);
+
+
+        fab.setOnClickListener(this);
+
+
+    }
+
+    private void callReviewsApi(int id) {
+        Call<ReviewModel> reviewModelCall = new RestClient().getApiService().callReviewModel(id, BuildConfig.MOVIE_API_KEY);
+        reviewModelCall.enqueue(new retrofit2.Callback<ReviewModel>() {
+            @Override
+            public void onResponse(Call<ReviewModel> call, Response<ReviewModel> response) {
+                if (response.code() == Constants.OK) {
+                    ReviewModel reviewModel = response.body();
+                    StringBuilder reviewTextString = new StringBuilder();
+                    if (reviewModel != null) {
+                        int authorNumber = 1;
+                        for (ReviewModel.ResultsBean resultsBean : reviewModel.getResults()) {
+                            reviewTextString.append(authorNumber + ". ")
+                                    .append(resultsBean.getAuthor())
+                                    .append("\n")
+                                    .append(resultsBean.getContent()).append("\n\n\n");
+                            authorNumber++;
+                        }
+
+                        movieReviewsTextView.setText(reviewTextString);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ReviewModel> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void callVideosApi(int id) {
+        ApiService apiService = new RestClient().getApiService();
+        retrofit2.Call<VideosModel> videosModelCall = apiService.callVideosModelCall(id, BuildConfig.MOVIE_API_KEY);
+
+        videosModelCall.enqueue(new retrofit2.Callback<VideosModel>() {
+            @Override
+            public void onResponse(retrofit2.Call<VideosModel> call, Response<VideosModel> response) {
+                if (response.code() == Constants.OK) {
+                    videourl = response.body().getResults().get(0).getKey();
+                    Picasso.with(DetailsActivity.this)
+                            .load(Constants.thumbnailUrl + response.body().getResults().get(0).getKey() + "/0.jpg")
+                            .placeholder(R.mipmap.ic_launcher)
+                            .into(movieTrailerImageView, new Callback() {
+                                @Override
+                                public void onSuccess() {
+
+
+                                }
+
+                                @Override
+                                public void onError() {
+
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<VideosModel> call, Throwable t) {
+
+            }
+        });
+
+
     }
 
     private void initScreen() {
         coverPicture = findViewById(R.id.cover_picture);
         moviePic = findViewById(R.id.movie_image);
+        fab = findViewById(R.id.fab);
         movieName = findViewById(R.id.movie_name);
         movieOverview = findViewById(R.id.movie_overview);
         movieRatings = findViewById(R.id.movie_ratings);
         movieReleaseDate = findViewById(R.id.movie_release_date);
+        movieTrailerImageView = findViewById(R.id.trailer_imageview);
+        movieReviewsTextView = findViewById(R.id.reviews_textview);
+
     }
 
+    @Override
+    public void onClick(View v) {
+
+        if (v.getId() == R.id.trailer_imageview) {
+            Intent intent = new Intent();
+            if (videourl == null) {
+                return;
+            }
+            String url = "https://www.youtube.com/watch?v=" + videourl;
+            intent.setData(Uri.parse(url));
+            startActivity(intent);
+
+
+        } else if (v.getId() == R.id.reviews_textview) {
+            if (movieReviewsTextView.getMaxLines()
+                    == 5) {
+                movieReviewsTextView.setMaxLines(Integer.MAX_VALUE);
+            } else {
+                movieReviewsTextView.setMaxLines(5);
+            }
+        } else if (v.getId() == R.id.fab) {
+            if (!isfav) {
+                fab.setImageDrawable(ContextCompat.getDrawable(DetailsActivity.this
+                        , R.drawable.ic_favorite_white_24dp));
+                isfav = true;
+
+                MovieModel.ResultsBean resultsBean = new MovieModel.ResultsBean();
+                resultsBean.setId(movieInfo.getId());
+                resultsBean.setBackdrop_path(movieInfo.getBackdrop_path());
+                resultsBean.setPoster_path(movieInfo.getPoster_path());
+                resultsBean.setOverview(movieInfo.getOverview());
+                resultsBean.setVote_average(movieInfo.getVote_average());
+                resultsBean.setRelease_date(movieInfo.getRelease_date());
+                resultsBean.setTitle(movieInfo.getTitle());
+                resultsBean.setOverview(movieInfo.getOverview());
+                sqLitehelper.insertRecord(resultsBean, isfav);
+
+            } else {
+                fab.setImageDrawable(ContextCompat.getDrawable(DetailsActivity.this
+                        , R.drawable.ic_favorite_border_white_24dp));
+                isfav = false;
+                sqLitehelper.deleteRecord(movieInfo.getId());
+
+
+            }
+
+
+        }
+    }
 }

@@ -7,4 +7,8 @@
     <item
         android:id="@+id/sort_by_ratings"
         android:title="@string/sort_by_ratings" />
+    <item
+        android:id="@+id/favourites"
+        android:icon="@drawable/ic_favorite_white_24dp"
+        android:title="@string/favourites" />
 </menu>

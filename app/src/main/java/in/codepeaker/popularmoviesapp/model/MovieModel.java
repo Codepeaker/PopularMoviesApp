@@ -105,6 +105,8 @@ public class MovieModel {
         private String release_date;
         private List<Integer> genre_ids;
 
+        private boolean isFav;
+
         public int getVote_count() {
             return vote_count;
         }
@@ -215,6 +217,14 @@ public class MovieModel {
 
         public void setGenre_ids(List<Integer> genre_ids) {
             this.genre_ids = genre_ids;
+        }
+
+        public boolean isFav() {
+            return isFav;
+        }
+
+        public void setFav(boolean fav) {
+            isFav = fav;
         }
     }
 }

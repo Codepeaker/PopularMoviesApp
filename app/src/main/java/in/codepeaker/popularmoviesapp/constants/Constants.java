@@ -9,6 +9,8 @@ public class Constants {
     public static final String SORT_BY_RATINGS = "ratings";
     public static final String BASE_URL = "https://api.themoviedb.org/3/movie/";
     public static String MovieFragment = "MovieFragment";
+    public static int OK = 200;
     public static String selectedMovie = "selectedMovie";
     public static String imageUrl = "http://image.tmdb.org/t/p/w500/";
+    public static String thumbnailUrl = "https://img.youtube.com/vi/";
 }

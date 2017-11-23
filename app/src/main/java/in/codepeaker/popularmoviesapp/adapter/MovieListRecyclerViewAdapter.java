@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -45,7 +44,7 @@ public class MovieListRecyclerViewAdapter extends RecyclerView.Adapter<MovieList
     public void onBindViewHolder(MovieViewHolder holder, int position) {
         holder.movieTitle.setText(movieInfoList.get(position).title);
         Picasso.with(context).load(Constants.imageUrl + movieInfoList.get(position).poster_path).into(holder.imageView);
-        holder.ratingBar.setRating((float) movieInfoList.get(position).vote_average);
+        holder.ratingBar.setRating((float) movieInfoList.get(position).vote_average/2);
 
     }
 
@@ -59,7 +58,7 @@ public class MovieListRecyclerViewAdapter extends RecyclerView.Adapter<MovieList
         TextView movieTitle;
         RatingBar ratingBar;
 
-        public MovieViewHolder(View itemView) {
+        MovieViewHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.movie_thumbnail_id);
             imageView.setOnClickListener(this);
@@ -73,8 +72,7 @@ public class MovieListRecyclerViewAdapter extends RecyclerView.Adapter<MovieList
             if (v.getId() == R.id.movie_thumbnail_id) {
                 Intent todetailIntent = new Intent(context, DetailsActivity.class);
                 MovieInfo movieInfo = (movieInfoList.get(getAdapterPosition()));
-                String selectedMovieString = new Gson().toJson(movieInfo);
-                todetailIntent.putExtra(Constants.selectedMovie, selectedMovieString);
+                todetailIntent.putExtra(Constants.selectedMovie, movieInfo);
                 context.startActivity(todetailIntent);
             }
 

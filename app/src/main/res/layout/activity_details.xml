@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
     tools:context="in.codepeaker.popularmoviesapp.activities.DetailsActivity">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
+        android:layout_height="@dimen/size_240"
+
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <android.support.design.widget.CollapsingToolbarLayout
@@ -27,7 +28,7 @@
             <ImageView
                 android:id="@+id/cover_picture"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/size_360"
+                android:layout_height="match_parent"
                 android:contentDescription="@string/cover_picture"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
@@ -54,14 +55,13 @@
         <include layout="@layout/content_details" />
     </android.support.v4.widget.NestedScrollView>
 
-    <!--<android.support.design.widget.FloatingActionButton-->
-    <!--android:id="@+id/fab"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_gravity="bottom|end"-->
-    <!--android:layout_margin="@dimen/fab_margin"-->
-    <!--app:layout_anchor="@id/collapsing_toolbar_layout"-->
-    <!--app:layout_anchorGravity="bottom|end"-->
-    <!--app:srcCompat="@android:drawable/ic_dialog_email" />-->
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_favorite_border_white_24dp"
+        app:layout_anchor="@id/appbar_layout"
+        app:layout_anchorGravity="bottom|end|right" />
 
 </android.support.design.widget.CoordinatorLayout>

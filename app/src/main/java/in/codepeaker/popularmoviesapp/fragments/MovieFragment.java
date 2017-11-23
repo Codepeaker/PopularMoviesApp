@@ -22,6 +22,7 @@ import in.codepeaker.popularmoviesapp.info.MovieInfo;
 import in.codepeaker.popularmoviesapp.interfaces.Controller;
 import in.codepeaker.popularmoviesapp.model.MovieModel;
 import in.codepeaker.popularmoviesapp.rest.GetMovies;
+import in.codepeaker.popularmoviesapp.sqlhelper.SQLitehelper;
 
 /**
  * Created by github.com/codepeaker on 11/11/17.
@@ -29,8 +30,9 @@ import in.codepeaker.popularmoviesapp.rest.GetMovies;
 
 public class MovieFragment extends Fragment implements Controller {
 
+    List<MovieInfo> movieInfoList;
+    MovieListRecyclerViewAdapter movieListRecyclerViewAdapter;
     private RecyclerView movieRecyclerView;
-
 
     @Nullable
     @Override
@@ -57,23 +59,25 @@ public class MovieFragment extends Fragment implements Controller {
 
     }
 
-    public void setRecyclerView(MovieModel movieModel) {
-        List<MovieModel.ResultsBean> resultsBeanList = movieModel.getResults();
+    public void setRecyclerView(List<MovieModel.ResultsBean> resultsBeanList) {
 
-        List<MovieInfo> movieInfoList = new ArrayList<>();
-        for (int i = 0; i < movieModel.getResults().size(); i++) {
+
+        movieInfoList = new ArrayList<>();
+        for (int i = 0; i < resultsBeanList.size(); i++) {
             MovieInfo movieInfo = new MovieInfo();
+            movieInfo.id = resultsBeanList.get(i).getId();
             movieInfo.title = resultsBeanList.get(i).getTitle();
             movieInfo.poster_path = resultsBeanList.get(i).getPoster_path();
             movieInfo.overview = resultsBeanList.get(i).getOverview();
             movieInfo.release_date = resultsBeanList.get(i).getRelease_date();
             movieInfo.backdrop_path = resultsBeanList.get(i).getBackdrop_path();
-            movieInfo.vote_average = resultsBeanList.get(i).getVote_average() / 2;
+            movieInfo.vote_average = resultsBeanList.get(i).getVote_average();
+            movieInfo.isFav = resultsBeanList.get(i).isFav();
             movieInfoList.add(movieInfo);
         }
 
         movieRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        MovieListRecyclerViewAdapter movieListRecyclerViewAdapter = new MovieListRecyclerViewAdapter(getActivity(), movieInfoList);
+        movieListRecyclerViewAdapter = new MovieListRecyclerViewAdapter(getActivity(), movieInfoList);
 
         movieRecyclerView.setAdapter(movieListRecyclerViewAdapter);
     }
@@ -90,6 +94,11 @@ public class MovieFragment extends Fragment implements Controller {
 
             getMovies.execute();
 
+        } else if (item.getItemId() == R.id.favourites){
+            SQLitehelper sqLitehelper = new SQLitehelper(getActivity());
+            List<MovieModel.ResultsBean> resultsBeanList = sqLitehelper.getAllRecords();
+            setRecyclerView(resultsBeanList);
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -104,7 +113,7 @@ public class MovieFragment extends Fragment implements Controller {
 
 
     @Override
-    public void setMovieList(MovieModel movieList) {
+    public void setMovieList(List<MovieModel.ResultsBean> movieList) {
         setRecyclerView(movieList);
     }
 }

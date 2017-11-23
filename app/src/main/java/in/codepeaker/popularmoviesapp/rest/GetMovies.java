@@ -52,7 +52,7 @@ public class GetMovies extends AsyncTask<String, Void, MovieModel> {
     protected void onPostExecute(MovieModel movieModel) {
         FragmentManager fr = ((HomeActivity) context).getFragmentManager();
         MovieFragment movieFragment = (MovieFragment) fr.findFragmentByTag(Constants.MovieFragment);
-        movieFragment.setMovieList(movieModel);
+        movieFragment.setMovieList(movieModel.getResults());
     }
 
     @Override

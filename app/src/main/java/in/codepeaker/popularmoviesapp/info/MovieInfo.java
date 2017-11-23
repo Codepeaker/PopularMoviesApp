@@ -1,24 +1,50 @@
 package in.codepeaker.popularmoviesapp.info;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by root on 10/11/17.
  */
 
-public class MovieInfo {
+public class MovieInfo implements Parcelable {
+
+    public static final Creator<MovieInfo> CREATOR = new Creator<MovieInfo>() {
+        @Override
+        public MovieInfo createFromParcel(Parcel in) {
+            return new MovieInfo(in);
+        }
+
+        @Override
+        public MovieInfo[] newArray(int size) {
+            return new MovieInfo[size];
+        }
+    };
     public String overview;
     public String release_date;
     public String backdrop_path;
-    public boolean video;
     public double vote_average;
     public String title;
     public String poster_path;
+    public int id;
+    public boolean isFav;
 
-    public String getBackdrop_path() {
-        return backdrop_path;
+    public MovieInfo() {
     }
 
-    public void setBackdrop_path(String backdrop_path) {
-        this.backdrop_path = backdrop_path;
+    protected MovieInfo(Parcel in) {
+        overview = in.readString();
+        release_date = in.readString();
+        backdrop_path = in.readString();
+        vote_average = in.readDouble();
+        title = in.readString();
+        poster_path = in.readString();
+        id = in.readInt();
+        isFav = in.readByte() != 0;
+    }
+
+    public static Creator<MovieInfo> getCREATOR() {
+        return CREATOR;
     }
 
     public String getOverview() {
@@ -37,12 +63,12 @@ public class MovieInfo {
         this.release_date = release_date;
     }
 
-    public boolean isVideo() {
-        return video;
+    public String getBackdrop_path() {
+        return backdrop_path;
     }
 
-    public void setVideo(boolean video) {
-        this.video = video;
+    public void setBackdrop_path(String backdrop_path) {
+        this.backdrop_path = backdrop_path;
     }
 
     public double getVote_average() {
@@ -69,16 +95,36 @@ public class MovieInfo {
         this.poster_path = poster_path;
     }
 
-    @Override
+    public int getId() {
+        return id;
+    }
 
-    public String toString() {
-        return "MovieInfo{" +
-                "overview='" + overview + '\'' +
-                ", release_date='" + release_date + '\'' +
-                ", video=" + video +
-                ", vote_average=" + vote_average +
-                ", title='" + title + '\'' +
-                ", poster_path='" + poster_path + '\'' +
-                '}';
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public boolean isFav() {
+        return isFav;
+    }
+
+    public void setFav(boolean fav) {
+        isFav = fav;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(overview);
+        dest.writeString(release_date);
+        dest.writeString(backdrop_path);
+        dest.writeDouble(vote_average);
+        dest.writeString(title);
+        dest.writeString(poster_path);
+        dest.writeInt(id);
+        dest.writeByte((byte) (isFav ? 1 : 0));
     }
 }
