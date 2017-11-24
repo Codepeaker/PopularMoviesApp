@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import in.codepeaker.popularmoviesapp.model.MovieModel;
 
@@ -89,6 +90,34 @@ public class SQLitehelper extends SQLiteOpenHelper {
         return contacts;
     }
 
+    public ArrayList<MovieModel.ResultsBean> getAllFavMovieRecords() {
+        database = this.getReadableDatabase();
+        Cursor cursor = database.query(TABLE_NAME, null, null, null, null, null, null);
+        ArrayList<MovieModel.ResultsBean> contacts = new ArrayList<MovieModel.ResultsBean>();
+        MovieModel.ResultsBean resultsBean;
+        if (cursor.getCount() > 0) {
+            for (int i = 0; i < cursor.getCount(); i++) {
+                cursor.moveToNext();
+                if (!(cursor.getInt(6) > 0)) {
+                    continue;
+                }
+                resultsBean = new MovieModel.ResultsBean();
+                resultsBean.setId(Integer.parseInt(cursor.getString(0)));
+                resultsBean.setOverview(cursor.getString(1));
+                resultsBean.setBackdrop_path(cursor.getString(2));
+                resultsBean.setVote_average(Double.parseDouble(decimalFormat.format(cursor.getDouble(3))));
+                resultsBean.setPoster_path(cursor.getString(4));
+                resultsBean.setTitle(cursor.getString(5));
+                resultsBean.setFav(cursor.getInt(6) > 0);
+                resultsBean.setRelease_date(cursor.getString(7));
+                contacts.add(resultsBean);
+            }
+        }
+        cursor.close();
+        database.close();
+        return contacts;
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
@@ -106,7 +135,27 @@ public class SQLitehelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_release_date, movieModel.getRelease_date());
         contentValues.put(COLUMN_title, movieModel.getTitle());
         contentValues.put(COLUMN_vote_average, movieModel.getVote_average());
-        database.insert(TABLE_NAME, null, contentValues);
+        if (database.insert(TABLE_NAME, null, contentValues) == -1) {
+            database.update(TABLE_NAME, contentValues, COLUMN_id + "=" + movieModel.getId(), null);
+        }
+        database.close();
+    }
+
+    public void insertAllPopularRecord(List<MovieModel.ResultsBean> movieModelResultsBeans) {
+        database = this.getReadableDatabase();
+
+        for (MovieModel.ResultsBean movieModel : movieModelResultsBeans) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(COLUMN_backdrop_path, movieModel.getBackdrop_path());
+            contentValues.put(COLUMN_id, movieModel.getId());
+            contentValues.put(COLUMN_overview, movieModel.getOverview());
+            contentValues.put(COLUMN_poster_path, movieModel.getPoster_path());
+            contentValues.put(COLUMN_release_date, movieModel.getRelease_date());
+            contentValues.put(COLUMN_title, movieModel.getTitle());
+            contentValues.put(COLUMN_vote_average, movieModel.getVote_average());
+            database.insert(TABLE_NAME, null, contentValues);
+        }
+
         database.close();
     }
 

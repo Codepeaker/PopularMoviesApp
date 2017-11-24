@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -22,6 +23,7 @@ import in.codepeaker.popularmoviesapp.activities.HomeActivity;
 import in.codepeaker.popularmoviesapp.constants.Constants;
 import in.codepeaker.popularmoviesapp.fragments.MovieFragment;
 import in.codepeaker.popularmoviesapp.model.MovieModel;
+import in.codepeaker.popularmoviesapp.sqlhelper.SQLitehelper;
 
 /**
  * Created by github.com/codepeaker on 11/11/17.
@@ -29,6 +31,7 @@ import in.codepeaker.popularmoviesapp.model.MovieModel;
 
 public class GetMovies extends AsyncTask<String, Void, MovieModel> {
     private final String sortType;
+    boolean isPopular = false;
     private ProgressDialog progressDialog;
     private BufferedReader bufferedReader;
     private HttpURLConnection httpURLConnection;
@@ -50,9 +53,18 @@ public class GetMovies extends AsyncTask<String, Void, MovieModel> {
 
     @Override
     protected void onPostExecute(MovieModel movieModel) {
+
+        if (movieModel == null || movieModel.getResults() == null) {
+            Toast.makeText(context, "Make sure you have active internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         FragmentManager fr = ((HomeActivity) context).getFragmentManager();
         MovieFragment movieFragment = (MovieFragment) fr.findFragmentByTag(Constants.MovieFragment);
         movieFragment.setMovieList(movieModel.getResults());
+        if (isPopular) {
+            SQLitehelper sqLitehelper = new SQLitehelper(context);
+            sqLitehelper.insertAllPopularRecord(movieModel.getResults());
+        }
     }
 
     @Override
@@ -66,12 +78,13 @@ public class GetMovies extends AsyncTask<String, Void, MovieModel> {
         String responseString;
         try {
             if (sortType.equals(Constants.SORT_BY_POPULARITY)) {
-
+                isPopular = true;
 
                 url = new URL(Constants.BASE_URL + "popular?api_key=" + BuildConfig.MOVIE_API_KEY);
 
 
             } else {
+                isPopular = false;
                 url = new URL(Constants.BASE_URL + "top_rated?api_key=" + BuildConfig.MOVIE_API_KEY);
             }
 

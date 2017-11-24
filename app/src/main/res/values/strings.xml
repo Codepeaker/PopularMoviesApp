@@ -10,4 +10,5 @@
     <string name="movie_reviews">Movie Reviews</string>
     <string name="movie_trailer_thumbnail">movie trailer thumbnail</string>
     <string name="favourites">Favourites</string>
+    <string name="review_not_offline">Review are not available offline</string>
 </resources>

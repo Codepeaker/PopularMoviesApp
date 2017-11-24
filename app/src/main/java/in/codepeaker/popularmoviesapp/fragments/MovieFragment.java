@@ -23,6 +23,7 @@ import in.codepeaker.popularmoviesapp.interfaces.Controller;
 import in.codepeaker.popularmoviesapp.model.MovieModel;
 import in.codepeaker.popularmoviesapp.rest.GetMovies;
 import in.codepeaker.popularmoviesapp.sqlhelper.SQLitehelper;
+import in.codepeaker.popularmoviesapp.utils.AppUtils;
 
 /**
  * Created by github.com/codepeaker on 11/11/17.
@@ -30,7 +31,7 @@ import in.codepeaker.popularmoviesapp.sqlhelper.SQLitehelper;
 
 public class MovieFragment extends Fragment implements Controller {
 
-    List<MovieInfo> movieInfoList;
+    ArrayList<MovieInfo> movieInfoList;
     MovieListRecyclerViewAdapter movieListRecyclerViewAdapter;
     private RecyclerView movieRecyclerView;
 
@@ -39,9 +40,20 @@ public class MovieFragment extends Fragment implements Controller {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.movie_fragment, container, false);
+
         init(view);
-        initAction();
+        initAction(view);
         return view;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null && savedInstanceState.containsKey("movieList")) {
+            movieInfoList = savedInstanceState.getParcelableArrayList("movieList");
+
+        }
+        super.onCreate(savedInstanceState);
+
     }
 
     private void init(View view) {
@@ -49,13 +61,28 @@ public class MovieFragment extends Fragment implements Controller {
 
     }
 
-    private void initAction() {
+    private void initAction(View view) {
 
-        GetMovies getMovies = new GetMovies(getActivity(), Constants.SORT_BY_POPULARITY);
+        if (AppUtils.CheckEnabledInternet(getActivity())) {
+            GetMovies getMovies = new GetMovies(getActivity(), Constants.SORT_BY_POPULARITY);
+            getMovies.execute();
 
-        getMovies.execute();
+        } else {
+
+            SQLitehelper sqLitehelper = new SQLitehelper(getActivity());
+            List<MovieModel.ResultsBean> resultsBeanList = sqLitehelper.getAllRecords();
+            setRecyclerView(resultsBeanList);
+        }
+
 
         setHasOptionsMenu(true);
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("movieList", movieInfoList);
+        super.onSaveInstanceState(outState);
 
     }
 
@@ -82,21 +109,52 @@ public class MovieFragment extends Fragment implements Controller {
         movieRecyclerView.setAdapter(movieListRecyclerViewAdapter);
     }
 
+    public void setRecyclerViewWithMovieInfo(List<MovieInfo> resultsBeanList) {
+
+
+        movieInfoList = new ArrayList<>();
+        for (int i = 0; i < resultsBeanList.size(); i++) {
+            MovieInfo movieInfo = new MovieInfo();
+            movieInfo.id = resultsBeanList.get(i).getId();
+            movieInfo.title = resultsBeanList.get(i).getTitle();
+            movieInfo.poster_path = resultsBeanList.get(i).getPoster_path();
+            movieInfo.overview = resultsBeanList.get(i).getOverview();
+            movieInfo.release_date = resultsBeanList.get(i).getRelease_date();
+            movieInfo.backdrop_path = resultsBeanList.get(i).getBackdrop_path();
+            movieInfo.vote_average = resultsBeanList.get(i).getVote_average();
+            movieInfo.isFav = resultsBeanList.get(i).isFav();
+            movieInfoList.add(movieInfo);
+        }
+
+        movieRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        movieListRecyclerViewAdapter = new MovieListRecyclerViewAdapter(getActivity(), movieInfoList);
+
+        movieRecyclerView.setAdapter(movieListRecyclerViewAdapter);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.sort_by_popularirty) {
-            GetMovies getMovies = new GetMovies(getActivity(), Constants.SORT_BY_POPULARITY);
+            if (AppUtils.CheckEnabledInternet(getActivity())) {
+                GetMovies getMovies = new GetMovies(getActivity(), Constants.SORT_BY_POPULARITY);
+                getMovies.execute();
 
-            getMovies.execute();
+            } else {
+
+                SQLitehelper sqLitehelper = new SQLitehelper(getActivity());
+                List<MovieModel.ResultsBean> resultsBeanList = sqLitehelper.getAllRecords();
+                setRecyclerView(resultsBeanList);
+            }
+
 
         } else if (item.getItemId() == R.id.sort_by_ratings) {
             GetMovies getMovies = new GetMovies(getActivity(), Constants.SORT_BY_RATINGS);
 
             getMovies.execute();
 
-        } else if (item.getItemId() == R.id.favourites){
+        } else if (item.getItemId() == R.id.favourites) {
             SQLitehelper sqLitehelper = new SQLitehelper(getActivity());
-            List<MovieModel.ResultsBean> resultsBeanList = sqLitehelper.getAllRecords();
+            List<MovieModel.ResultsBean> resultsBeanList = sqLitehelper.getAllFavMovieRecords();
             setRecyclerView(resultsBeanList);
 
         }

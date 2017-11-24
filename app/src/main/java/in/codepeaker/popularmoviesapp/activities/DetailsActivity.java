@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
@@ -58,6 +57,9 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null && savedInstanceState.containsKey("movieModel")) {
+            movieInfo = savedInstanceState.getParcelable("movieModel");
+        }
         setContentView(R.layout.activity_details);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -65,6 +67,7 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
         initScreen();
 
         initAction();
@@ -113,10 +116,12 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
 
         Picasso.with(DetailsActivity.this)
                 .load(Constants.imageUrl + movieInfo.getPoster_path())
+                .placeholder(R.drawable.moviepic)
                 .into(moviePic);
 
         Picasso.with(DetailsActivity.this)
                 .load(Constants.imageUrl + movieInfo.getBackdrop_path())
+                .placeholder(R.drawable.moviebackground)
                 .into(coverPicture);
 
         callVideosApi(movieInfo.id);
@@ -142,7 +147,7 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
                     if (reviewModel != null) {
                         int authorNumber = 1;
                         for (ReviewModel.ResultsBean resultsBean : reviewModel.getResults()) {
-                            reviewTextString.append(authorNumber + ". ")
+                            reviewTextString.append(authorNumber).append(". ")
                                     .append(resultsBean.getAuthor())
                                     .append("\n")
                                     .append(resultsBean.getContent()).append("\n\n\n");
@@ -151,12 +156,15 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
 
                         movieReviewsTextView.setText(reviewTextString);
                     }
+                } else {
+                    movieReviewsTextView.setText(R.string.review_not_offline);
                 }
             }
 
             @Override
             public void onFailure(Call<ReviewModel> call, Throwable t) {
 
+                movieReviewsTextView.setText(R.string.review_not_offline);
             }
         });
     }
@@ -169,22 +177,15 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onResponse(retrofit2.Call<VideosModel> call, Response<VideosModel> response) {
                 if (response.code() == Constants.OK) {
+                    VideosModel videosModel = response.body();
+                    if (videosModel == null || videosModel.getResults() == null) {
+                        return;
+                    }
                     videourl = response.body().getResults().get(0).getKey();
                     Picasso.with(DetailsActivity.this)
                             .load(Constants.thumbnailUrl + response.body().getResults().get(0).getKey() + "/0.jpg")
-                            .placeholder(R.mipmap.ic_launcher)
-                            .into(movieTrailerImageView, new Callback() {
-                                @Override
-                                public void onSuccess() {
-
-
-                                }
-
-                                @Override
-                                public void onError() {
-
-                                }
-                            });
+                            .placeholder(R.drawable.moviebackground)
+                            .into(movieTrailerImageView);
                 }
             }
 
@@ -211,6 +212,12 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable("movieModel", movieInfo);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void onClick(View v) {
 
         if (v.getId() == R.id.trailer_imageview) {
@@ -231,10 +238,10 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
                 movieReviewsTextView.setMaxLines(5);
             }
         } else if (v.getId() == R.id.fab) {
-            if (!isfav) {
+            if (!sqLitehelper.checkIfFav(movieInfo.getId())) {
                 fab.setImageDrawable(ContextCompat.getDrawable(DetailsActivity.this
                         , R.drawable.ic_favorite_white_24dp));
-                isfav = true;
+
 
                 MovieModel.ResultsBean resultsBean = new MovieModel.ResultsBean();
                 resultsBean.setId(movieInfo.getId());
@@ -245,12 +252,12 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
                 resultsBean.setRelease_date(movieInfo.getRelease_date());
                 resultsBean.setTitle(movieInfo.getTitle());
                 resultsBean.setOverview(movieInfo.getOverview());
-                sqLitehelper.insertRecord(resultsBean, isfav);
+                sqLitehelper.insertRecord(resultsBean, true);
 
             } else {
                 fab.setImageDrawable(ContextCompat.getDrawable(DetailsActivity.this
                         , R.drawable.ic_favorite_border_white_24dp));
-                isfav = false;
+
                 sqLitehelper.deleteRecord(movieInfo.getId());
 
 
