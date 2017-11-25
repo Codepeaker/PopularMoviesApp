@@ -31,8 +31,8 @@ import in.codepeaker.popularmoviesapp.utils.AppUtils;
 
 public class MovieFragment extends Fragment implements Controller {
 
-    ArrayList<MovieInfo> movieInfoList;
-    MovieListRecyclerViewAdapter movieListRecyclerViewAdapter;
+    private ArrayList<MovieInfo> movieInfoList;
+    private MovieListRecyclerViewAdapter movieListRecyclerViewAdapter;
     private RecyclerView movieRecyclerView;
 
     @Nullable
@@ -86,30 +86,7 @@ public class MovieFragment extends Fragment implements Controller {
 
     }
 
-    public void setRecyclerView(List<MovieModel.ResultsBean> resultsBeanList) {
-
-
-        movieInfoList = new ArrayList<>();
-        for (int i = 0; i < resultsBeanList.size(); i++) {
-            MovieInfo movieInfo = new MovieInfo();
-            movieInfo.id = resultsBeanList.get(i).getId();
-            movieInfo.title = resultsBeanList.get(i).getTitle();
-            movieInfo.poster_path = resultsBeanList.get(i).getPoster_path();
-            movieInfo.overview = resultsBeanList.get(i).getOverview();
-            movieInfo.release_date = resultsBeanList.get(i).getRelease_date();
-            movieInfo.backdrop_path = resultsBeanList.get(i).getBackdrop_path();
-            movieInfo.vote_average = resultsBeanList.get(i).getVote_average();
-            movieInfo.isFav = resultsBeanList.get(i).isFav();
-            movieInfoList.add(movieInfo);
-        }
-
-        movieRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        movieListRecyclerViewAdapter = new MovieListRecyclerViewAdapter(getActivity(), movieInfoList);
-
-        movieRecyclerView.setAdapter(movieListRecyclerViewAdapter);
-    }
-
-    public void setRecyclerViewWithMovieInfo(List<MovieInfo> resultsBeanList) {
+    private void setRecyclerView(List<MovieModel.ResultsBean> resultsBeanList) {
 
 
         movieInfoList = new ArrayList<>();

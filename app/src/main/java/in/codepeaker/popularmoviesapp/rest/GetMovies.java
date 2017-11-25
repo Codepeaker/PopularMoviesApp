@@ -31,12 +31,12 @@ import in.codepeaker.popularmoviesapp.sqlhelper.SQLitehelper;
 
 public class GetMovies extends AsyncTask<String, Void, MovieModel> {
     private final String sortType;
-    boolean isPopular = false;
-    private ProgressDialog progressDialog;
+    private boolean isPopular = false;
+    private final ProgressDialog progressDialog;
     private BufferedReader bufferedReader;
     private HttpURLConnection httpURLConnection;
     @SuppressLint("StaticFieldLeak")
-    private Context context;
+    private final Context context;
 
     public GetMovies(Context context, String sortType) {
         this.sortType = sortType;

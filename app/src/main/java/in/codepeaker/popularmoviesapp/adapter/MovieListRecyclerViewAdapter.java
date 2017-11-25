@@ -25,8 +25,8 @@ import in.codepeaker.popularmoviesapp.info.MovieInfo;
 
 public class MovieListRecyclerViewAdapter extends RecyclerView.Adapter<MovieListRecyclerViewAdapter.MovieViewHolder> {
 
-    private List<MovieInfo> movieInfoList;
-    private Context context;
+    private final List<MovieInfo> movieInfoList;
+    private final Context context;
 
 
     public MovieListRecyclerViewAdapter(Context context, List<MovieInfo> movieInfoList) {
@@ -57,9 +57,9 @@ public class MovieListRecyclerViewAdapter extends RecyclerView.Adapter<MovieList
     }
 
     class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        ImageView imageView;
-        TextView movieTitle;
-        RatingBar ratingBar;
+        final ImageView imageView;
+        final TextView movieTitle;
+        final RatingBar ratingBar;
 
         MovieViewHolder(View itemView) {
             super(itemView);

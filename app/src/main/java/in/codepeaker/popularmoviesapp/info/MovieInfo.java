@@ -9,7 +9,7 @@ import android.os.Parcelable;
 
 public class MovieInfo implements Parcelable {
 
-    public static final Creator<MovieInfo> CREATOR = new Creator<MovieInfo>() {
+    private static final Creator<MovieInfo> CREATOR = new Creator<MovieInfo>() {
         @Override
         public MovieInfo createFromParcel(Parcel in) {
             return new MovieInfo(in);
@@ -32,7 +32,7 @@ public class MovieInfo implements Parcelable {
     public MovieInfo() {
     }
 
-    protected MovieInfo(Parcel in) {
+    private MovieInfo(Parcel in) {
         overview = in.readString();
         release_date = in.readString();
         backdrop_path = in.readString();

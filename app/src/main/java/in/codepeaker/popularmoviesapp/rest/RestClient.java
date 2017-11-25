@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class RestClient {
-    private ApiService apiService;
+    private final ApiService apiService;
 
     public RestClient() {
 

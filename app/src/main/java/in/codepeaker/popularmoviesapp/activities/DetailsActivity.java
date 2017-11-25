@@ -31,10 +31,10 @@ import retrofit2.Response;
 
 public class DetailsActivity extends AppCompatActivity implements View.OnClickListener {
 
-    FloatingActionButton fab;
-    SQLitehelper sqLitehelper;
-    MovieInfo movieInfo = null;
-    private DecimalFormat decimalFormat = new DecimalFormat("#.#");
+    private FloatingActionButton fab;
+    private SQLitehelper sqLitehelper;
+    private MovieInfo movieInfo = null;
+    private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
     private ImageView coverPicture;
     private TextView movieName;
     private ImageView moviePic;
@@ -86,8 +86,7 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
         Bundle data = getIntent().getExtras();
 
         if (data != null) {
-            movieInfo = (MovieInfo)
-                    data.getParcelable(Constants.selectedMovie);
+            movieInfo = data.getParcelable(Constants.selectedMovie);
         }
 //        String selectedMovie = getIntent().getStringExtra(Constants.selectedMovie);
 //        Gson gson = new Gson();

@@ -17,21 +17,21 @@ import in.codepeaker.popularmoviesapp.model.MovieModel;
  */
 
 public class SQLitehelper extends SQLiteOpenHelper {
-    public static final String TABLE_NAME = "MOVIES_TABLE";
-    public static final String COLUMN_id = "ID";
-    public static final String COLUMN_overview = "overview";
-    public static final String COLUMN_release_date = "releasedate";
-    public static final String COLUMN_backdrop_path = "backdrop_path";
+    private static final String TABLE_NAME = "MOVIES_TABLE";
+    private static final String COLUMN_id = "ID";
+    private static final String COLUMN_overview = "overview";
+    private static final String COLUMN_release_date = "releasedate";
+    private static final String COLUMN_backdrop_path = "backdrop_path";
     public static final String COLUMN_video = "video";
-    public static final String COLUMN_vote_average = "vote_average";
-    public static final String COLUMN_poster_path = "poster_path";
-    public static final String COLUMN_title = "title";
-    public static final String DATABASE_NAME = "SQLiteDatabase.db";
+    private static final String COLUMN_vote_average = "vote_average";
+    private static final String COLUMN_poster_path = "poster_path";
+    private static final String COLUMN_title = "title";
+    private static final String DATABASE_NAME = "SQLiteDatabase.db";
 
     private static final int DATABASE_VERSION = 1;
     private static final String COLUMN_isfavorite = "isFavourite";
     private SQLiteDatabase database;
-    private DecimalFormat decimalFormat = new DecimalFormat("#.#");
+    private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
 
     public SQLitehelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -68,7 +68,7 @@ public class SQLitehelper extends SQLiteOpenHelper {
     public ArrayList<MovieModel.ResultsBean> getAllRecords() {
         database = this.getReadableDatabase();
         Cursor cursor = database.query(TABLE_NAME, null, null, null, null, null, null);
-        ArrayList<MovieModel.ResultsBean> contacts = new ArrayList<MovieModel.ResultsBean>();
+        ArrayList<MovieModel.ResultsBean> contacts = new ArrayList<>();
         MovieModel.ResultsBean resultsBean;
         if (cursor.getCount() > 0) {
             for (int i = 0; i < cursor.getCount(); i++) {
@@ -93,7 +93,7 @@ public class SQLitehelper extends SQLiteOpenHelper {
     public ArrayList<MovieModel.ResultsBean> getAllFavMovieRecords() {
         database = this.getReadableDatabase();
         Cursor cursor = database.query(TABLE_NAME, null, null, null, null, null, null);
-        ArrayList<MovieModel.ResultsBean> contacts = new ArrayList<MovieModel.ResultsBean>();
+        ArrayList<MovieModel.ResultsBean> contacts = new ArrayList<>();
         MovieModel.ResultsBean resultsBean;
         if (cursor.getCount() > 0) {
             for (int i = 0; i < cursor.getCount(); i++) {
