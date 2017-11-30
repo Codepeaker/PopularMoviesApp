@@ -8,8 +8,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.List;
 
+import in.codepeaker.popularmoviesapp.contentprovider.MovieContract;
 import in.codepeaker.popularmoviesapp.model.MovieModel;
 
 /**
@@ -18,11 +18,10 @@ import in.codepeaker.popularmoviesapp.model.MovieModel;
 
 public class SQLitehelper extends SQLiteOpenHelper {
     private static final String TABLE_NAME = "MOVIES_TABLE";
-    private static final String COLUMN_id = "ID";
+    private static final String COLUMN_id = "movie_id";
     private static final String COLUMN_overview = "overview";
     private static final String COLUMN_release_date = "releasedate";
     private static final String COLUMN_backdrop_path = "backdrop_path";
-    public static final String COLUMN_video = "video";
     private static final String COLUMN_vote_average = "vote_average";
     private static final String COLUMN_poster_path = "poster_path";
     private static final String COLUMN_title = "title";
@@ -30,8 +29,8 @@ public class SQLitehelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String COLUMN_isfavorite = "isFavourite";
-    private SQLiteDatabase database;
     private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
+    private SQLiteDatabase database;
 
     public SQLitehelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -65,9 +64,11 @@ public class SQLitehelper extends SQLiteOpenHelper {
         return isFav;
     }
 
-    public ArrayList<MovieModel.ResultsBean> getAllRecords() {
+    public ArrayList<MovieModel.ResultsBean> getAllRecords(String table, String[] columns, String selection,
+                                                           String[] selectionArgs, String groupBy, String having,
+                                                           String orderBy) {
         database = this.getReadableDatabase();
-        Cursor cursor = database.query(TABLE_NAME, null, null, null, null, null, null);
+        Cursor cursor = database.query(table, columns, selection, selectionArgs, groupBy, having, orderBy);
         ArrayList<MovieModel.ResultsBean> contacts = new ArrayList<>();
         MovieModel.ResultsBean resultsBean;
         if (cursor.getCount() > 0) {
@@ -93,7 +94,7 @@ public class SQLitehelper extends SQLiteOpenHelper {
     public ArrayList<MovieModel.ResultsBean> getAllFavMovieRecords() {
         database = this.getReadableDatabase();
         Cursor cursor = database.query(TABLE_NAME, null, null, null, null, null, null);
-        ArrayList<MovieModel.ResultsBean> contacts = new ArrayList<>();
+        ArrayList<MovieModel.ResultsBean> movies = new ArrayList<>();
         MovieModel.ResultsBean resultsBean;
         if (cursor.getCount() > 0) {
             for (int i = 0; i < cursor.getCount(); i++) {
@@ -110,12 +111,12 @@ public class SQLitehelper extends SQLiteOpenHelper {
                 resultsBean.setTitle(cursor.getString(5));
                 resultsBean.setFav(cursor.getInt(6) > 0);
                 resultsBean.setRelease_date(cursor.getString(7));
-                contacts.add(resultsBean);
+                movies.add(resultsBean);
             }
         }
         cursor.close();
         database.close();
-        return contacts;
+        return movies;
     }
 
     @Override
@@ -124,46 +125,31 @@ public class SQLitehelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void insertRecord(MovieModel.ResultsBean movieModel, boolean isfav) {
+    public void insertFavouriteMovieRecord(ContentValues contentValues) {
         database = this.getReadableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_backdrop_path, movieModel.getBackdrop_path());
-        contentValues.put(COLUMN_id, movieModel.getId());
-        contentValues.put(COLUMN_isfavorite, isfav);
-        contentValues.put(COLUMN_overview, movieModel.getOverview());
-        contentValues.put(COLUMN_poster_path, movieModel.getPoster_path());
-        contentValues.put(COLUMN_release_date, movieModel.getRelease_date());
-        contentValues.put(COLUMN_title, movieModel.getTitle());
-        contentValues.put(COLUMN_vote_average, movieModel.getVote_average());
+
         if (database.insert(TABLE_NAME, null, contentValues) == -1) {
-            database.update(TABLE_NAME, contentValues, COLUMN_id + "=" + movieModel.getId(), null);
+            database.update(TABLE_NAME, contentValues, COLUMN_id + "=" + contentValues.get(MovieContract.MovieEntry.COLUMN_id),
+                    null);
         }
         database.close();
     }
 
-    public void insertAllPopularRecord(List<MovieModel.ResultsBean> movieModelResultsBeans) {
+    public void insertAllPopularRecord(ContentValues contentValues) {
+
         database = this.getReadableDatabase();
 
-        for (MovieModel.ResultsBean movieModel : movieModelResultsBeans) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(COLUMN_backdrop_path, movieModel.getBackdrop_path());
-            contentValues.put(COLUMN_id, movieModel.getId());
-            contentValues.put(COLUMN_overview, movieModel.getOverview());
-            contentValues.put(COLUMN_poster_path, movieModel.getPoster_path());
-            contentValues.put(COLUMN_release_date, movieModel.getRelease_date());
-            contentValues.put(COLUMN_title, movieModel.getTitle());
-            contentValues.put(COLUMN_vote_average, movieModel.getVote_average());
-            database.insert(TABLE_NAME, null, contentValues);
-        }
+        database.insert(TABLE_NAME, null, contentValues);
 
         database.close();
     }
 
 
-    public void deleteRecord(int id) {
+    public int deleteRecord(int id) {
         database = this.getReadableDatabase();
-        database.delete(TABLE_NAME, COLUMN_id + " = ?", new String[]{id + ""});
+        int count = database.delete(TABLE_NAME, COLUMN_id + " = ?", new String[]{id + ""});
         database.close();
+        return count;
     }
 
 

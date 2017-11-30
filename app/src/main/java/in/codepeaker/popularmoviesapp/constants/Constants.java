@@ -1,5 +1,7 @@
 package in.codepeaker.popularmoviesapp.constants;
 
+import java.text.DecimalFormat;
+
 /**
  * Created by github.com/codepeaker on 11/11/17.
  */
@@ -13,4 +15,5 @@ public class Constants {
     public static final String selectedMovie = "selectedMovie";
     public static final String imageUrl = "http://image.tmdb.org/t/p/w500/";
     public static final String thumbnailUrl = "https://img.youtube.com/vi/";
+    public static final DecimalFormat decimalFormat = new DecimalFormat("#.#");
 }

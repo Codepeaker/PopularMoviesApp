@@ -9,7 +9,7 @@ import android.os.Parcelable;
 
 public class MovieInfo implements Parcelable {
 
-    private static final Creator<MovieInfo> CREATOR = new Creator<MovieInfo>() {
+    public static final Creator<MovieInfo> CREATOR = new Creator<MovieInfo>() {
         @Override
         public MovieInfo createFromParcel(Parcel in) {
             return new MovieInfo(in);

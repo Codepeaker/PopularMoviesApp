@@ -1,5 +1,6 @@
 package in.codepeaker.popularmoviesapp.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public class MovieModel {
     private int page;
     private int total_results;
     private int total_pages;
-    private List<ResultsBean> results;
+    private ArrayList<ResultsBean> results;
 
     public int getPage() {
         return page;
@@ -44,11 +45,11 @@ public class MovieModel {
         this.total_pages = total_pages;
     }
 
-    public List<ResultsBean> getResults() {
+    public ArrayList<ResultsBean> getResults() {
         return results;
     }
 
-    public void setResults(List<ResultsBean> results) {
+    public void setResults(ArrayList<ResultsBean> results) {
         this.results = results;
     }
 

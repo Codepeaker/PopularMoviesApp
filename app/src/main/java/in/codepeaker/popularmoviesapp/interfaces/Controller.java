@@ -1,6 +1,6 @@
 package in.codepeaker.popularmoviesapp.interfaces;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import in.codepeaker.popularmoviesapp.model.MovieModel;
 
@@ -9,5 +9,5 @@ import in.codepeaker.popularmoviesapp.model.MovieModel;
  */
 
 public interface Controller {
-    void setMovieList(List<MovieModel.ResultsBean> movieList);
+    void setMovieList(ArrayList<MovieModel.ResultsBean> movieList);
 }

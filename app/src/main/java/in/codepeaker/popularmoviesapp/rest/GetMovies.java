@@ -1,10 +1,11 @@
 package in.codepeaker.popularmoviesapp.rest;
 
 import android.annotation.SuppressLint;
-import android.app.FragmentManager;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v4.app.FragmentManager;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -21,9 +22,10 @@ import java.net.URL;
 import in.codepeaker.popularmoviesapp.BuildConfig;
 import in.codepeaker.popularmoviesapp.activities.HomeActivity;
 import in.codepeaker.popularmoviesapp.constants.Constants;
+import in.codepeaker.popularmoviesapp.contentprovider.MovieContract;
 import in.codepeaker.popularmoviesapp.fragments.MovieFragment;
 import in.codepeaker.popularmoviesapp.model.MovieModel;
-import in.codepeaker.popularmoviesapp.sqlhelper.SQLitehelper;
+
 
 /**
  * Created by github.com/codepeaker on 11/11/17.
@@ -31,12 +33,12 @@ import in.codepeaker.popularmoviesapp.sqlhelper.SQLitehelper;
 
 public class GetMovies extends AsyncTask<String, Void, MovieModel> {
     private final String sortType;
-    private boolean isPopular = false;
     private final ProgressDialog progressDialog;
-    private BufferedReader bufferedReader;
-    private HttpURLConnection httpURLConnection;
     @SuppressLint("StaticFieldLeak")
     private final Context context;
+    private boolean isPopular = false;
+    private BufferedReader bufferedReader;
+    private HttpURLConnection httpURLConnection;
 
     public GetMovies(Context context, String sortType) {
         this.sortType = sortType;
@@ -58,12 +60,26 @@ public class GetMovies extends AsyncTask<String, Void, MovieModel> {
             Toast.makeText(context, "Make sure you have active internet connection", Toast.LENGTH_SHORT).show();
             return;
         }
-        FragmentManager fr = ((HomeActivity) context).getFragmentManager();
+        FragmentManager fr = ((HomeActivity) context).getSupportFragmentManager();
         MovieFragment movieFragment = (MovieFragment) fr.findFragmentByTag(Constants.MovieFragment);
         movieFragment.setMovieList(movieModel.getResults());
+
+
         if (isPopular) {
-            SQLitehelper sqLitehelper = new SQLitehelper(context);
-            sqLitehelper.insertAllPopularRecord(movieModel.getResults());
+//            SQLitehelper sqLitehelper = new SQLitehelper(context);
+//            sqLitehelper.insertAllPopularRecord(movieModel.getResults());
+
+            for (MovieModel.ResultsBean singleMovieModel : movieModel.getResults()) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MovieContract.MovieEntry.COLUMN_backdrop_path, singleMovieModel.getBackdrop_path());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_id, singleMovieModel.getId());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_overview, singleMovieModel.getOverview());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_poster_path, singleMovieModel.getPoster_path());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_release_date, singleMovieModel.getRelease_date());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_title, singleMovieModel.getTitle());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_vote_average, singleMovieModel.getVote_average());
+                context.getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+            }
         }
     }
 

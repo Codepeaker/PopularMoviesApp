@@ -1,6 +1,8 @@
 package in.codepeaker.popularmoviesapp.activities;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -19,8 +21,8 @@ import java.text.DecimalFormat;
 import in.codepeaker.popularmoviesapp.BuildConfig;
 import in.codepeaker.popularmoviesapp.R;
 import in.codepeaker.popularmoviesapp.constants.Constants;
+import in.codepeaker.popularmoviesapp.contentprovider.MovieContract;
 import in.codepeaker.popularmoviesapp.info.MovieInfo;
-import in.codepeaker.popularmoviesapp.model.MovieModel;
 import in.codepeaker.popularmoviesapp.model.ReviewModel;
 import in.codepeaker.popularmoviesapp.model.VideosModel;
 import in.codepeaker.popularmoviesapp.rest.ApiService;
@@ -31,10 +33,10 @@ import retrofit2.Response;
 
 public class DetailsActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
     private FloatingActionButton fab;
     private SQLitehelper sqLitehelper;
     private MovieInfo movieInfo = null;
-    private final DecimalFormat decimalFormat = new DecimalFormat("#.#");
     private ImageView coverPicture;
     private TextView movieName;
     private ImageView moviePic;
@@ -88,9 +90,6 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
         if (data != null) {
             movieInfo = data.getParcelable(Constants.selectedMovie);
         }
-//        String selectedMovie = getIntent().getStringExtra(Constants.selectedMovie);
-//        Gson gson = new Gson();
-//        MovieInfo movieInfo = gson.fromJson(selectedMovie, MovieInfo.class);
 
         sqLitehelper = new SQLitehelper(DetailsActivity.this);
         if (movieInfo == null) {
@@ -105,7 +104,7 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
         movieReleaseDate.setText(String.format("Release Date - %s", movieInfo.getRelease_date()));
         movieReviewsTextView.setOnClickListener(this);
         movieReviewsTextView.setMaxLines(5);
-        if (movieInfo.isFav() || sqLitehelper.checkIfFav(movieInfo.id)) {
+        if (movieInfo.isFav() || checkIfFav(movieInfo.id)) {
             fab.setImageDrawable(ContextCompat.getDrawable(DetailsActivity.this
                     , R.drawable.ic_favorite_white_24dp));
         } else {
@@ -133,6 +132,23 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
         fab.setOnClickListener(this);
 
 
+    }
+
+    private boolean checkIfFav(int id) {
+        Uri uri = MovieContract.BASE_CONTENT_URI.buildUpon().appendPath(MovieContract.PATH_MOVIE).build();
+        Cursor cursor = getContentResolver().query(uri
+                , null
+                , MovieContract.MovieEntry.COLUMN_id + "=" + id + " and "
+                        + MovieContract.MovieEntry.COLUMN_isfavorite + "=" + 1
+                , null
+                , null);
+
+        if (cursor != null) {
+            boolean isFav = cursor.getCount() > 0;
+            cursor.close();
+            return isFav;
+        }
+        return false;
     }
 
     private void callReviewsApi(int id) {
@@ -237,27 +253,37 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
                 movieReviewsTextView.setMaxLines(5);
             }
         } else if (v.getId() == R.id.fab) {
-            if (!sqLitehelper.checkIfFav(movieInfo.getId())) {
+            if (!checkIfFav(movieInfo.getId())) {
                 fab.setImageDrawable(ContextCompat.getDrawable(DetailsActivity.this
                         , R.drawable.ic_favorite_white_24dp));
 
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MovieContract.MovieEntry.COLUMN_backdrop_path, movieInfo.getBackdrop_path());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_id, movieInfo.getId());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_overview, movieInfo.getOverview());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_poster_path, movieInfo.getPoster_path());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_release_date, movieInfo.getRelease_date());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_isfavorite, true);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_title, movieInfo.getTitle());
+                contentValues.put(MovieContract.MovieEntry.COLUMN_vote_average, movieInfo.getVote_average());
 
-                MovieModel.ResultsBean resultsBean = new MovieModel.ResultsBean();
-                resultsBean.setId(movieInfo.getId());
-                resultsBean.setBackdrop_path(movieInfo.getBackdrop_path());
-                resultsBean.setPoster_path(movieInfo.getPoster_path());
-                resultsBean.setOverview(movieInfo.getOverview());
-                resultsBean.setVote_average(movieInfo.getVote_average());
-                resultsBean.setRelease_date(movieInfo.getRelease_date());
-                resultsBean.setTitle(movieInfo.getTitle());
-                resultsBean.setOverview(movieInfo.getOverview());
-                sqLitehelper.insertRecord(resultsBean, true);
+                String stringId = Integer.toString(movieInfo.getId());
+                Uri uri = MovieContract.MovieEntry.CONTENT_URI;
+                uri = uri.buildUpon().appendPath(stringId).build();
+
+                getContentResolver().insert(uri, contentValues);
 
             } else {
                 fab.setImageDrawable(ContextCompat.getDrawable(DetailsActivity.this
                         , R.drawable.ic_favorite_border_white_24dp));
 
-                sqLitehelper.deleteRecord(movieInfo.getId());
+//                sqLitehelper.deleteRecord(movieInfo.getId());
+                String stringId = Integer.toString(movieInfo.getId());
+                Uri uri = MovieContract.MovieEntry.CONTENT_URI;
+                uri = uri.buildUpon().appendPath(stringId).build();
+
+                // COMPLETED (2) Delete a single row of data using a ContentResolver
+                getContentResolver().delete(uri, null, null);
 
 
             }
