@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -53,8 +54,27 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
+        } else if (item.getItemId() == R.id.share_id) {
+            if (videourl == null) {
+                return false;
+            }
+            String url = "https://www.youtube.com/watch?v=" + videourl;
+            Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+            sharingIntent.setType("text/plain");
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Shared via Populare movies app :)");
+            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Shared via Populare movies app :) \n\n " + url);
+            startActivity(Intent.createChooser(sharingIntent, getResources().getString(R.string.share_using)));
+
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.detail_menu, menu);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -123,8 +143,9 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
                     }
 
                     @Override
-                    public void onError() {moviePic.setImageDrawable(
-                            ContextCompat.getDrawable(DetailsActivity.this,R.drawable.moviepic));
+                    public void onError() {
+                        moviePic.setImageDrawable(
+                                ContextCompat.getDrawable(DetailsActivity.this, R.drawable.moviepic));
 
                     }
                 });
@@ -139,8 +160,9 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
                     }
 
                     @Override
-                    public void onError() {coverPicture.setImageDrawable(
-                            ContextCompat.getDrawable(DetailsActivity.this,R.drawable.moviepic));
+                    public void onError() {
+                        coverPicture.setImageDrawable(
+                                ContextCompat.getDrawable(DetailsActivity.this, R.drawable.moviepic));
 
                     }
                 });
@@ -230,8 +252,9 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
                                 }
 
                                 @Override
-                                public void onError() {movieTrailerImageView.setImageDrawable(
-                                        ContextCompat.getDrawable(DetailsActivity.this,R.drawable.moviepic));
+                                public void onError() {
+                                    movieTrailerImageView.setImageDrawable(
+                                            ContextCompat.getDrawable(DetailsActivity.this, R.drawable.moviepic));
 
                                 }
                             });

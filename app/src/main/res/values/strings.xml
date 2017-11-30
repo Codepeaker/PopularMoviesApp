@@ -11,4 +11,6 @@
     <string name="movie_trailer_thumbnail">movie trailer thumbnail</string>
     <string name="favourites">Favourites</string>
     <string name="review_not_offline">Review are not available offline</string>
+    <string name="share">Share</string>
+    <string name="share_using">Share Using</string>
 </resources>
