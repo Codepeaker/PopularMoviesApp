@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
@@ -115,12 +116,34 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
         Picasso.with(DetailsActivity.this)
                 .load(Constants.imageUrl + movieInfo.getPoster_path())
                 .placeholder(R.drawable.moviepic)
-                .into(moviePic);
+                .into(moviePic, new Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError() {moviePic.setImageDrawable(
+                            ContextCompat.getDrawable(DetailsActivity.this,R.drawable.moviepic));
+
+                    }
+                });
 
         Picasso.with(DetailsActivity.this)
                 .load(Constants.imageUrl + movieInfo.getBackdrop_path())
                 .placeholder(R.drawable.moviebackground)
-                .into(coverPicture);
+                .into(coverPicture, new Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError() {coverPicture.setImageDrawable(
+                            ContextCompat.getDrawable(DetailsActivity.this,R.drawable.moviepic));
+
+                    }
+                });
 
         callVideosApi(movieInfo.id);
 
@@ -200,7 +223,18 @@ public class DetailsActivity extends AppCompatActivity implements View.OnClickLi
                     Picasso.with(DetailsActivity.this)
                             .load(Constants.thumbnailUrl + response.body().getResults().get(0).getKey() + "/0.jpg")
                             .placeholder(R.drawable.moviebackground)
-                            .into(movieTrailerImageView);
+                            .into(movieTrailerImageView, new Callback() {
+                                @Override
+                                public void onSuccess() {
+
+                                }
+
+                                @Override
+                                public void onError() {movieTrailerImageView.setImageDrawable(
+                                        ContextCompat.getDrawable(DetailsActivity.this,R.drawable.moviepic));
+
+                                }
+                            });
                 }
             }
 
